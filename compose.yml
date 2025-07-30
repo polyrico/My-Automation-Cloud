@@ -32,6 +32,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  # db in memory: redis
+  redis:
+    image: redis:7
+    restart: always
+
   # n8n core: https://docs.n8n.io/
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -42,7 +47,7 @@ services:
       - "127.0.0.1:5678:5678"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`)
+      - traefik.http.routers.n8n.rule=Host(`n8n.${DOMAIN_NAME}`)
       - traefik.http.routers.n8n.tls=true
       - traefik.http.routers.n8n.entrypoints=web,websecure
       - traefik.http.routers.n8n.tls.certresolver=mytlschallenge
@@ -56,11 +61,11 @@ services:
       - traefik.http.middlewares.n8n.headers.STSPreload=true
       - traefik.http.routers.n8n.middlewares=n8n@docker
     environment:
-      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
+      - N8N_HOST=n8n.${DOMAIN_NAME}
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - NODE_ENV=production
-      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      - WEBHOOK_URL=https://n8n.${DOMAIN_NAME}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_DATABASE=n8n
@@ -73,7 +78,32 @@ services:
       - n8n_data:/home/node/.n8n
       - ./n8n/files:/files
 
+  # Evolution API
+  evolution:
+    image: atendai/evolution-api:v2.1.1
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.evolution.rule=Host(`evolution.${DOMAIN_NAME}`)
+      - traefik.http.routers.evolution.tls=true
+      - traefik.http.routers.evolution.entrypoints=web,websecure
+      - traefik.http.routers.evolution.tls.certresolver=mytlschallenge
+      - traefik.http.services.evolution.loadbalancer.server.port=8080
+      - traefik.http.middlewares.evolution.headers.SSLRedirect=true
+      - traefik.http.middlewares.evolution.headers.STSSeconds=315360000
+      - traefik.http.middlewares.evolution.headers.browserXSSFilter=true
+      - traefik.http.middlewares.evolution.headers.contentTypeNosniff=true
+      - traefik.http.middlewares.evolution.headers.forceSTSHeader=true
+      - traefik.http.middlewares.evolution.headers.STSIncludeSubdomains=true
+      - traefik.http.middlewares.evolution.headers.STSPreload=true
+      - traefik.http.routers.evolution.middlewares=evolution@docker
+    env_file:
+      - .env
+    volumes:
+      - evolution_instances:/evolution/instances
+
 volumes:
   n8n_data:
   traefik_data:
   pgdata:
+  evolution_instances:
