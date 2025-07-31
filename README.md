@@ -14,3 +14,7 @@ In this project, you will find, the enought services to up your own **n8n** serv
 5. Run the command ```docker compose up -d```
 6. Open n8n in your browser with [https://n8n.${YOU_DOMAIN}](https://n8n.example.local)
 7. Enjoy 🥳
+
+## 🪲 Common issues
+### Communication between containers
+1. When you trie to configure Webhooks of n8n in Evolution API, you should use always the internal service name like `http://n8n:{port}/....` or ``http://evolution/...` in n8n.
