@@ -1,0 +1,536 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0f4f498a-24e6-4457-a2b3-81e015a41ed2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        272,
+        192
+      ],
+      "id": "cecd7f18-2b83-4c30-91ca-62da363f1264",
+      "name": "Webhook",
+      "webhookId": "0f4f498a-24e6-4457-a2b3-81e015a41ed2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ebe8e169-3c9c-41c3-a547-dd43d2b12c78",
+              "name": "sender",
+              "value": "={{ $json.body.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "3cd439e1-7351-406a-bf4a-24489df4e4e3",
+              "name": "messageType",
+              "value": "={{ $json.body.data.messageType }}",
+              "type": "string"
+            },
+            {
+              "id": "3262b8dd-4b64-4bdb-abcc-21aad1015e9b",
+              "name": "textMessage",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "66b213ba-564e-470d-980d-1c57d362ffa1",
+              "name": "audioMessage",
+              "value": "={{ $json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        192
+      ],
+      "id": "c6b0436e-54e8-4d15-b897-a03e3535ca98",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b5a4ce46-4e85-4da1-98a6-f2e19b5b6c03",
+              "leftValue": "={{ $json.sender }}",
+              "rightValue": "573043258901",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "d9eb3909-8bd9-42a8-a24d-2538a1baac6b",
+              "leftValue": "={{ $json.textMessage }}",
+              "rightValue": "John Milton",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        192
+      ],
+      "id": "f0f5d412-fa76-4940-80c3-363cd01bc50a",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.messageType }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "019b90a8-7493-46e1-b843-b7c9fb3f0bcf"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cb943987-575c-49cc-9667-ace376a60b34",
+                    "leftValue": "={{ $json.messageType }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        192
+      ],
+      "id": "cb3268e1-786f-4bf6-8b0f-bb7065e24c05",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "audioMessage",
+        "options": {
+          "mimeType": "audio/ogg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        80
+      ],
+      "id": "76c82a50-4c9e-4969-a3d7-127c5e6df3d7",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        80
+      ],
+      "id": "10f5f902-fbed-4d2d-9062-f4324878807a",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "08B9wMSxoanIQWrg",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f079fc30-ea07-4059-ab43-e0858e827b77",
+              "name": "message",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "6282b014-2c98-4e7f-b2e6-04b8ce58a21e",
+              "name": "sessionId",
+              "value": "={{ $('Webhook').item.json.body.data.key.remoteJid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        80
+      ],
+      "id": "c89eeac7-8ecf-40b1-8cd3-a08ec18b7c76",
+      "name": "Message in Audio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f079fc30-ea07-4059-ab43-e0858e827b77",
+              "name": "message",
+              "value": "={{ $json.textMessage }}",
+              "type": "string"
+            },
+            {
+              "id": "036ac766-7e4b-4ecd-9ce2-0353407a6a07",
+              "name": "sessionId",
+              "value": "={{ $('Webhook').item.json.body.data.key.remoteJid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        288
+      ],
+      "id": "fb8cb741-afbc-4903-8d37-6960897f6f08",
+      "name": "Message in Text"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are John Milton of The Devil's Advocate, all your responses should sound with the same personality. Be short in your response, but never forget \"you are John Milton, the fallen angel\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1808,
+        176
+      ],
+      "id": "9a040014-72f3-462d-996c-37f684ff6bb3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        368
+      ],
+      "id": "4c1d09f7-c3f0-44b4-ba15-ed7be52412a9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "08B9wMSxoanIQWrg",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1936,
+        384
+      ],
+      "id": "bbd6f93a-70fb-4084-b52e-a5b07ac633a4",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "6GaJPL1dtdtQoXdF",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://evolution:8080/message/sendText/{{ $('Webhook').item.json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "Jm4qa7%1r5j&^Y"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Filter').item.json.sender.split('@')[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=*John Milton:* {{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2160,
+        176
+      ],
+      "id": "37198c0f-4fd5-454e-8631-beb32a6c5d51",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "## 💬 Whatsapp text and voice chat\nThis flow was created with the instruction of [Programing Pills](https://www.youtube.com/watch?v=p3gz4pFxL4U&t) and [Polyrico Dev](https://github.com/polyrico)\n\n### 🎯 Key Points\n#### 📝 1. Gemini API and Transcript service\n* For use Gemini API you have to create a token in [here](https://ai.google.dev/gemini-api/docs) for the Gemini APIs (Don't worry, it's still free but it depends on the model you use)\n* For the audio recognition use Gemini Transacipt to text with the same API, it isn't neccesary create another token or pay something additional.\n#### 🤖 2. Whatsapp Comunication\n* The recive the messages from Whatsapp is neccesary use [Evolution API v2](https://doc.evolution-api.com/v1/pt/get-started/introduction), and configure your own Whatsapp account into Evolution, later configure the Webhook\n* To send the messages you have to configure the endpoint to [Evolution API Send Plain Text](https://doc.evolution-api.com/v1/api-reference/message-controller/send-text#send-plain-text)\n#### 🗃️ 4. Postgres to persist the conversations (optional)\n* In the [My Automation Cloud](https://github.com/polyrico/My-Automation-Cloud) you going to find the PostgreSQL service and your credentials to configure it in the flow.",
+        "height": 784,
+        "width": 2288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -208
+      ],
+      "id": "ed042b71-8ab4-43ba-8632-b17ec4930673",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 🗒️NOTE \nThis point is optional, and you can use the flow without a memory or with the Simple Storage provided for n8n.",
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2048,
+        368
+      ],
+      "typeVersion": 1,
+      "id": "31b40ec2-f8df-46bb-8678-cab88854c4e4",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message in Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Message in Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message in Audio": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message in Text": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b1c4a780-d46a-4f93-a19f-4770e2ea97c0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1bca0475164844ed1e6b772841eefa296aca43a0086211d652e26393c6227a90"
+  },
+  "id": "rOkIfYKBJaLeE1tJ",
+  "tags": []
+}
