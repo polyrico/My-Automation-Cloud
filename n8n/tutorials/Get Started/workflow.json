@@ -1,0 +1,200 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                3
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        0
+      ],
+      "id": "5e62f1f1-0aa6-4677-a59b-3c4d956d54c2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "donkiSolarFlare",
+        "additionalFields": {
+          "startDate": "={{ $today.minus(7, 'days') }}"
+        }
+      },
+      "type": "n8n-nodes-base.nasa",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "b8f5a15c-9ed4-4638-a094-028794bc82b6",
+      "name": "Get a DONKI solar flare",
+      "credentials": {
+        "nasaApi": {
+          "id": "ihm7PcdynUriLWYP",
+          "name": "NASA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e63ef87f-b2b6-467f-8de0-ccf832abba02",
+              "leftValue": "={{ $json.classType }}",
+              "rightValue": "X",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "14736d2c-9d77-4132-8105-c6ba394a6f2b",
+      "name": "If: Detect the maximum solar flare"
+    },
+    {
+      "parameters": {
+        "resource": "request",
+        "operation": "send",
+        "binContent": "=There was a solar flare of class {{ $json.classType }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.postBin",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -96
+      ],
+      "id": "495451a6-525f-4f25-8efe-547421100514",
+      "name": "Send a request: to bin"
+    },
+    {
+      "parameters": {
+        "resource": "request",
+        "operation": "send",
+        "binContent": "=There was a solar flare of class {{ $json.classType }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.postBin",
+      "typeVersion": 1,
+      "position": [
+        208,
+        96
+      ],
+      "id": "dd40bf38-8fdb-4955-a438-2a45d98e38a3",
+      "name": "Send a request: to bin2"
+    },
+    {
+      "parameters": {
+        "content": "## Get Start Tutorial\nComplete tutorial [here](https://docs.n8n.io/try-it-out/tutorial-first-workflow)",
+        "height": 512,
+        "width": 1296
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -224
+      ],
+      "id": "2ef34962-9a9a-458b-ae13-04441ab789b4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## TL;DR\n1. You have to create a new BIN [here](https://www.postb.in/)\n2. And paste the BIN in the **Bin ID** fields on *Send a request 1*, and *Send a request 2*.",
+        "height": 144,
+        "width": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -32
+      ],
+      "id": "d4b4a27e-9e5d-4d16-a8e7-44f47cf1eb37",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a DONKI solar flare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a DONKI solar flare": {
+      "main": [
+        [
+          {
+            "node": "If: Detect the maximum solar flare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Detect the maximum solar flare": {
+      "main": [
+        [
+          {
+            "node": "Send a request: to bin",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a request: to bin2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e08f8587-dff9-4b68-967b-54778e3c4ac6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1bca0475164844ed1e6b772841eefa296aca43a0086211d652e26393c6227a90"
+  },
+  "id": "2PceA3RaAvuAElMa",
+  "tags": []
+}
