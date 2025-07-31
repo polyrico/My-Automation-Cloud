@@ -17,4 +17,4 @@ In this project, you will find, the enought services to up your own **n8n** serv
 
 ## 🪲 Common issues
 ### Communication between containers
-1. When you trie to configure Webhooks of n8n in Evolution API, you should use always the internal service name like `http://n8n:{port}/....` or ``http://evolution/...` in n8n.
+1. When you trie to configure Webhooks of n8n in Evolution API, you should use always the internal service name like `http://n8n:{port}/....` or `http://evolution/...` in n8n.
