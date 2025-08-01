@@ -1,5 +1,5 @@
 # MyAutomationCloud
-In this project, you will find, the enought services to up your own **n8n** server, with **PostgreSQL**, **Redis** and **Evolution API** for automate everyting you need.
+In this project, you will find, the enought services to get up your own **n8n** server, with **PostgreSQL**, **Redis** and **Evolution API** for automate everyting you need.
 
 ## 🎬 Get started
 ### 📋 Pre-requisites
